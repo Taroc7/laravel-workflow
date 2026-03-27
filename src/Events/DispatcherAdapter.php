@@ -17,9 +17,9 @@ class DispatcherAdapter implements EventDispatcherInterface
         'announce' => AnnounceEvent::class,
     ];
 
-    protected $dispatcher;
+    protected Dispatcher $dispatcher;
 
-    private $plainEvents;
+    private array $plainEvents;
 
     public function __construct(Dispatcher $dispatcher)
     {
@@ -55,8 +55,8 @@ class DispatcherAdapter implements EventDispatcherInterface
         return $eventToDispatch;
     }
 
-    private function shouldDispatchPlainClassEvent(?string $eventName = null)
-    {
+    private function shouldDispatchPlainClassEvent(?string $eventName = null): bool
+	{
         if (! $eventName) {
             return false;
         }
@@ -81,8 +81,8 @@ class DispatcherAdapter implements EventDispatcherInterface
         return $translatedEventClass::newFromBase($symfonyEvent);
     }
 
-    private function parseWorkflowEventFromEventName(string $eventName)
-    {
+    private function parseWorkflowEventFromEventName(string $eventName): bool|string
+	{
         $eventSearch = preg_match('/\.(?P<event>' . implode('|', array_keys(static::EVENT_MAP)) . ')(\.|$)/i', $eventName, $eventMatches);
 
         if (! $eventSearch) {

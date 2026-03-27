@@ -25,30 +25,34 @@ abstract class BaseEvent extends Event
             'workflow' => [
                 'name' => $this->getWorkflowName(),
             ],
+			'context' => $this->getContext(),
         ];
     }
 
     public function __unserialize(array $data): void
     {
         $workflowName = $data['workflow']['name'] ?? null;
-        parent::__construct(
-            $data['subject'],
-            $data['marking'],
-            $data['transition'],
-            Workflow::get($data['subject'], $workflowName)
-        );
+
+		$arguments = [
+			...$data,
+			'workflow' => Workflow::get($data['subject'], $workflowName),
+			'context' => $data['context'],
+		];
+
+		parent::__construct(...$arguments);
     }
 
     /**
      * Creates a new instance from the base Symfony event
      */
-    public static function newFromBase(Event $symfonyEvent)
-    {
+    public static function newFromBase(Event $symfonyEvent): static
+	{
         return new static(
             $symfonyEvent->getSubject(),
             $symfonyEvent->getMarking(),
             $symfonyEvent->getTransition(),
-            $symfonyEvent->getWorkflow()
+            $symfonyEvent->getWorkflow(),
+            $symfonyEvent->getContext()
         );
     }
 }
